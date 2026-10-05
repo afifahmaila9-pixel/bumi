@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>Jelajah Bumi: Rotasi & Revolusi</title>
+    <!-- Font Awesome untuk ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: #050510;
+            color: #f0f3fa;
+            overflow-x: hidden;
+            line-height: 1.5;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        /* === BACKGROUND LANGIT BERBINTANG === */
+        .space-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: radial-gradient(circle at 20% 30%, #0a0a2a, #03030f 80%);
+            overflow: hidden;
+        }
+
+        .stars, .twinkling {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .stars {
+            background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="10" cy="20" r="0.8" fill="white" opacity="0.9"/><circle cx="45" cy="8" r="1" fill="white" opacity="0.8"/><circle cx="80" cy="15" r="0.6" fill="white" opacity="0.7"/><circle cx="25" cy="70" r="0.9" fill="white" opacity="0.9"/><circle cx="65" cy="45" r="1.1" fill="white" opacity="0.9"/><circle cx="90" cy="80" r="0.7" fill="white" opacity="0.8"/><circle cx="5" cy="90" r="0.8" fill="white" opacity="0.7"/><circle cx="50" cy="85" r="1" fill="white" opacity="0.9"/><circle cx="73" cy="28" r="0.8" fill="white" opacity="0.8"/><circle cx="33" cy="42" r="0.7" fill="white" opacity="0.8"/><circle cx="95" cy="55" r="0.9" fill="white" opacity="0.9"/><circle cx="12" cy="55" r="0.6" fill="white" opacity="0.8"/></svg>') repeat;
+            background-size: 200px 200px;
+            animation: starsMove 200s linear infinite;
+            opacity: 0.8;
+        }
+
+        .twinkling {
+            background: transparent url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="15" cy="25" r="0.5" fill="%23fff9c4" opacity="0.9"/><circle cx="85" cy="65" r="0.8" fill="%23fff9c4" opacity="0.8"/><circle cx="55" cy="10" r="0.6" fill="%23ffffff" opacity="0.9"/><circle cx="35" cy="80" r="0.7" fill="%23ffffff" opacity="0.7"/><circle cx="70" cy="35" r="0.5" fill="%23fff9c4" opacity="0.9"/></svg>') repeat;
+            background-size: 300px 300px;
+            animation: twinkle 4s ease-in-out infinite alternate;
+            opacity: 0.6;
+        }
+
+        @keyframes starsMove {
+            from { background-position: 0 0; }
+            to { background-position: 200px 200px; }
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.9; }
+        }
+
+        /* === MATAHARI BERCahaya (posisi background) === */
+        .sun-glow {
+            position: fixed;
+            top: -10%;
+            right: -5%;
+            width: 40vmax;
+            height: 40vmax;
+            background: radial-gradient(circle, #ffb347 0%, #ff8c00 40%, #ff4500 70%, transparent 80%);
+            border-radius: 50%;
+            filter: blur(25px);
+            opacity: 0.25;
+            z-index: -1;
+            animation: sunPulse 8s infinite alternate;
+        }
+
+        @keyframes sunPulse {
+            0% { transform: scale(1); opacity: 0.2; }
+            100% { transform: scale(1.1); opacity: 0.35; }
+        }
+
+        /* === KONTEN UTAMA === */
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* HEADER */
+        header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: rgba(10, 15, 30, 0.6);
+            backdrop-filter: blur(8px);
+            padding: 15px 25px;
+            border-radius: 60px;
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo i {
+            font-size: 2.2rem;
+            color: #ffd966;
+            text-shadow: 0 0 20px #ffb347;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            background: linear-gradient(135deg, #fff8e7, #ffd966);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-links a {
+            color: #d0d9ff;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 18px;
+            border-radius: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 215, 0, 0.2);
+            color: #fff4d6;
+            transform: translateY(-2px);
+        }
+
+        /* HERO / INTRO */
+        .hero {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 30px;
+            margin-bottom: 40px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 40px;
+            padding: 20px 30px;
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 200, 0.1);
+        }
+
+        .hero-text {
+            flex: 1 1 300px;
+        }
+
+        .hero-text h2 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #fff, #ffe28c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-text p {
+            font-size: 1.1rem;
+            color: #b8c3e6;
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffb347, #ff8c00);
+            color: #0a0a1a;
+            font-weight: 700;
+            padding: 14px 32px;
+            border-radius: 50px;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+            box-shadow: 0 0 25px rgba(255, 140, 0, 0.7);
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 35px rgba(255, 200, 0, 0.9);
+        }
+
+        .hero-visual {
+            flex: 1 1 300px;
+            display: flex;
+            justify-content: center;
+            position: relative;
+            min-height: 200px;
+        }
+
+        /* Simulasi Bumi 3D dan orbit mini di hero */
+        .mini-orbit {
+            position: relative;
+            width: 220px;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mini-sun {
+            width: 60px;
+            height: 60px;
+            background: radial-gradient(circle, #fff9c4, #ffb347, #ff6f00);
+            border-radius: 50%;
+            box-shadow: 0 0 40px #ffa500, 0 0 80px #ff8c00;
+            z-index: 2;
+            animation: pulseSun 3s infinite alternate;
+        }
+
+        @keyframes pulseSun {
+            0% { box-shadow: 0 0 30px #ffa500, 0 0 60px #ff8c00; }
+            100% { box-shadow: 0 0 50px #ffb347, 0 0 100px #ff8c00; }
+        }
+
+        .orbit-ring {
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border: 1px dashed rgba(255, 255, 200, 0.5);
+            border-radius: 50%;
+            animation: rotateOrbit 12s linear infinite;
+        }
+
+        .mini-earth {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle at 30% 30%, #4da6ff, #1a4d80, #0a1a2a);
+            border-radius: 50%;
+            box-shadow: 0 0 15px #4da6ff, 0 0 30px #1e90ff;
+            top: 50%;
+            left: 100%;
+            transform: translate(-50%, -50%);
+            animation: earthSpin 4s infinite linear;
+        }
+
+        @keyframes rotateOrbit {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes earthSpin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* KARTU MATERI */
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 40px 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: #ffecb3;
+        }
+
+        .section-title i {
+            color: #ffb347;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(20, 25, 45, 0.75);
+            backdrop-filter: blur(8px);
+            border-radius: 28px;
+            padding: 25px 22px;
+            border: 1px solid rgba(255, 215, 0, 0.25);
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.7);
+            transition: all 0.25s ease;
+            color: #e6ecff;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(255, 200, 0, 0.8);
+            box-shadow: 0 25px 35px -8px #000000, 0 0 20px rgba(255, 200, 0, 0.3);
+        }
+
+        .card i {
+            font-size: 2rem;
+            color: #ffd966;
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: #fff2cf;
+        }
+
+        .card p, .card ul {
+            font-size: 0.98rem;
+            color: #cbd5f0;
+        }
+
+        .card ul {
+            padding-left: 20px;
+            margin-top: 10px;
+        }
+
+        .card li {
+            margin-bottom: 6px;
+        }
+
+        /* SIMULASI BESAR */
+        .simulation-box {
+            background: rgba(8, 12, 24, 0.8);
+            backdrop-filter: blur(5px);
+            border-radius: 40px;
+            padding: 30px 20px;
+            margin: 40px 0;
+            border: 1px solid rgba(255, 180, 0, 0.4);
+            box-shadow: 0 0 50px rgba(255, 140, 0, 0.2);
+        }
+
+        .simulation-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .simulation-header h3 {
+            font-size: 1.8rem;
+            color: #ffe28c;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .controls button {
+            background: rgba(255, 215, 0, 0.15);
+            border: 1px solid #ffb347;
+            color: #ffeaac;
+            padding: 10px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .controls button:hover {
+            background: #ffb347;
+            color: #0a0a1a;
+            border-color: #ffb347;
+            box-shadow: 0 0 20px #ffb347;
+        }
+
+        .simulation-canvas-container {
+            position: relative;
+            width: 100%;
+            height: 380px;
+            background: radial-gradient(circle at 20% 30%, #10152b, #02040c);
+            border-radius: 30px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border: 1px solid #2a3a5a;
+            box-shadow: inset 0 0 50px #000000;
+        }
+
+        canvas#simCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+        }
+
+        .sim-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            font-size: 0.95rem;
+            color: #b0c0e0;
+            margin-top: 15px;
+        }
+
+        .sim-info span {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px 18px;
+            border-radius: 30px;
+            border-left: 4px solid #ffb347;
+        }
+
+        /* PERBANDINGAN */
+        .comparison {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+
+        .compare-item {
+            flex: 1 1 250px;
+            background: rgba(20, 30, 55, 0.7);
+            border-radius: 28px;
+            padding: 25px;
+            border: 1px solid #3a4a6a;
+        }
+
+        .compare-item h4 {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+            color: #ffd966;
+        }
+
+        .compare-item p {
+            color: #b8c6e8;
+        }
+
+        /* FOOTER */
+        footer {
+            margin-top: 60px;
+            text-align: center;
+            padding: 25px;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+            color: #8a9bc0;
+            font-size: 0.9rem;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 15px;
+                border-radius: 30px;
+            }
+
+            .logo h1 {
+                font-size: 1.5rem;
+            }
+
+            .hero-text h2 {
+                font-size: 1.9rem;
+            }
+
+            .section-title {
+                font-size: 1.6rem;
+            }
+
+            .simulation-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .simulation-canvas-container {
+                height: 300px;
+            }
+
+            .controls button {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 15px 12px;
+            }
+
+            .hero {
+                padding: 20px;
+            }
+
+            .hero-text h2 {
+                font-size: 1.6rem;
+            }
+
+            .card {
+                padding: 18px;
+            }
+
+            .simulation-canvas-container {
+                height: 250px;
+            }
+        }
+
+        /* Efek komet / garis orbit */
+        .orbit-line {
+            position: absolute;
+            border: 1px dashed rgba(255, 255, 200, 0.3);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- BACKGROUND LANGIT -->
+    <div class="space-bg">
+        <div class="stars"></div>
+        <div class="twinkling"></div>
+    </div>
+    <div class="sun-glow"></div>
+
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <div class="logo">
+                <i class="fas fa-globe-asia"></i>
+                <h1>Jelajah Bumi</h1>
+            </div>
+            <div class="nav-links">
+                <a href="#materi"><i class="fas fa-book-open"></i> Materi</a>
+                <a href="#simulasi"><i class="fas fa-play-circle"></i> Simulasi</a>
+                <a href="#perbandingan"><i class="fas fa-balance-scale"></i> Perbandingan</a>
+            </div>
+        </header>
+
+        <!-- HERO -->
+        <section class="hero">
+            <div class="hero-text">
+                <h2>Rotasi & Revolusi Bumi</h2>
+                <p>Jelajahi bagaimana Bumi berputar dan mengelilingi Matahari. Lihat langsung dampaknya pada siang-malam, musim, dan pergerakan benda langit.</p>
+                <a href="#simulasi" class="btn-primary"><i class="fas fa-rocket"></i> Mulai Simulasi</a>
+            </div>
+            <div class="hero-visual">
+                <div class="mini-orbit">
+                    <div class="mini-sun"></div>
+                    <div class="orbit-ring"></div>
+                    <div class="mini-earth"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MATERI SINGKAT -->
+        <h2 class="section-title" id="materi"><i class="fas fa-graduation-cap"></i> Materi Penting</h2>
+        <div class="card-grid">
+            <div class="card">
+                <i class="fas fa-sync-alt"></i>
+                <h3>Rotasi Bumi</h3>
+                <p>Perputaran Bumi pada porosnya dari barat ke timur. Satu kali rotasi memakan waktu <strong>24 jam</strong>.</p>
+                <ul>
+                    <li>Menyebabkan siang & malam</li>
+                    <li>Perbedaan waktu di Bumi</li>
+                    <li>Pergerakan semu Matahari</li>
+                </ul>
+            </div>
+            <div class="card">
+                <i class="fas fa-orbit"></i>
+                <h3>Revolusi Bumi</h3>
+                <p>Bumi mengelilingi Matahari pada orbit elips. Satu kali revolusi memakan waktu <strong>365¼ hari</strong>.</p>
+                <ul>
+                    <li>Menyebabkan pergantian musim</li>
+                    <li>Perbedaan lamanya siang & malam</li>
+                    <li>Gerak semu tahunan Matahari</li>
+                </ul>
+            </div>
+            <div class="card">
+                <i class="fas fa-moon"></i>
+                <h3>Bumi, Bulan, Matahari</h3>
+                <p>Bulan mengelilingi Bumi, Bumi mengelilingi Matahari. Interaksi ini memengaruhi pasang surut dan fase Bulan.</p>
+                <ul>
+                    <li>Bulan berevolusi terhadap Bumi (29,5 hari)</li>
+                    <li>Gerhana Matahari & Bulan</li>
+                    <li>Pasang surut air laut</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- SIMULASI INTERAKTIF -->
+        <div class="simulation-box" id="simulasi">
+            <div class="simulation-header">
+                <h3><i class="fas fa-cogs"></i> Simulasi Interaktif</h3>
+                <div class="controls">
+                    <button id="pauseBtn"><i class="fas fa-pause"></i> Jeda</button>
+                    <button id="resetBtn"><i class="fas fa-undo-alt"></i> Reset</button>
+                    <button id="speedUpBtn"><i class="fas fa-forward"></i> Percepat</button>
+                </div>
+            </div>
+            <div class="simulation-canvas-container">
+                <canvas id="simCanvas"></canvas>
+            </div>
+            <div class="sim-info">
+                <span><i class="fas fa-sun" style="color:#ffb347;"></i> Matahari</span>
+                <span><i class="fas fa-globe" style="color:#4da6ff;"></i> Bumi (rotasi & revolusi)</span>
+                <span><i class="fas fa-moon" style="color:#cccccc;"></i> Bulan</span>
+                <span><i class="fas fa-circle" style="color:#ffd966;"></i> Orbit</span>
+            </div>
+        </div>
+
+        <!-- PERBANDINGAN -->
+        <h2 class="section-title" id="perbandingan"><i class="fas fa-balance-scale"></i> Rotasi vs Revolusi</h2>
+        <div class="comparison">
+            <div class="compare-item">
+                <h4><i class="fas fa-sync-alt"></i> Rotasi</h4>
+                <p><strong>Pengertian:</strong> Perputaran Bumi pada porosnya.</p>
+                <p><strong>Waktu:</strong> 24 jam (1 hari).</p>
+                <p><strong>Arah:</strong> Barat ke timur.</p>
+                <p><strong>Dampak:</strong> Siang-malam, perbedaan waktu, gerak semu harian Matahari.</p>
+            </div>
+            <div class="compare-item">
+                <h4><i class="fas fa-orbit"></i> Revolusi</h4>
+                <p><strong>Pengertian:</strong> Bumi mengelilingi Matahari.</p>
+                <p><strong>Waktu:</strong> 365¼ hari (1 tahun).</p>
+                <p><strong>Arah:</strong> Berlawanan arah jarum jam (dilihat dari utara).</p>
+                <p><strong>Dampak:</strong> Musim, perbedaan lama siang-malam, gerak semu tahunan Matahari.</p>
+            </div>
+        </div>
+
+        <footer>
+            <p><i class="fas fa-star"></i> Belajar IPA jadi menyenangkan! <i class="fas fa-star"></i></p>
+            <p style="margin-top:8px;">© 2025 Jelajah Bumi - Media Pembelajaran Interaktif</p>
+        </footer>
+    </div>
+
+    <!-- SCRIPT SIMULASI -->
+    <script>
+        (function() {
+            const canvas = document.getElementById('simCanvas');
+            const ctx = canvas.getContext('2d');
+
+            // Ukuran canvas dinamis
+            function resizeCanvas() {
+                const container = canvas.parentElement;
+                canvas.width = container.clientWidth;
+                canvas.height = container.clientHeight;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            // Variabel simulasi
+            let angleEarth = 0;        // sudut revolusi Bumi (radian)
+            let angleMoon = 0;         // sudut revolusi Bulan mengelilingi Bumi
+            let earthRotation = 0;     // rotasi Bumi (untuk efek visual)
+            let isPaused = false;
+            let speedFactor = 1;
+
+            // Konstanta
+            const SUN_RADIUS = 30;
+            const EARTH_RADIUS = 14;
+            const MOON_RADIUS = 7;
+            const EARTH_ORBIT_RADIUS = 150;  // jarak Bumi-Matahari
+            const MOON_ORBIT_RADIUS = 35;    // jarak Bulan-Bumi
+
+            // Warna
+            const COLORS = {
+                sun: '#ffb347',
+                sunGlow: '#ff8c00',
+                earth: '#2e7bb6',
+                earthLand: '#3a9e4d',
+                moon: '#b0b0b0',
+                orbit: 'rgba(255,255,200,0.3)',
+                star: '#ffffff'
+            };
+
+            // Bintang-bintang tetap (untuk background canvas)
+            const stars = [];
+            for (let i = 0; i < 150; i++) {
+                stars.push({
+                    x: Math.random(),
+                    y: Math.random(),
+                    r: Math.random() * 1.5 + 0.3,
+                    brightness: Math.random() * 0.7 + 0.3
+                });
+            }
+
+            // Update semua sudut berdasarkan waktu
+            let lastTimestamp = 0;
+            function updateSimulation(deltaTime) {
+                if (isPaused) return;
+
+                // Kecepatan dasar (radian per detik)
+                const baseSpeed = 0.3 * speedFactor;
+                angleEarth += baseSpeed * 0.5 * deltaTime;
+                angleMoon += baseSpeed * 2.2 * deltaTime;  // Bulan lebih cepat
+                earthRotation += baseSpeed * 4 * deltaTime;
+
+                // Batasi sudut agar tidak terlalu besar
+                if (angleEarth > Math.PI * 2) angleEarth -= Math.PI * 2;
+                if (angleMoon > Math.PI * 2) angleMoon -= Math.PI * 2;
+                if (earthRotation > Math.PI * 2) earthRotation -= Math.PI * 2;
+            }
+
+            // Gambar latar bintang canvas
+            function drawStars() {
+                stars.forEach(star => {
+                    const x = star.x * canvas.width;
+                    const y = star.y * canvas.height;
+                    ctx.beginPath();
+                    ctx.arc(x, y, star.r, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
+                    ctx.fill();
+                });
+            }
+
+            // Gambar Matahari dengan efek glow
+            function drawSun(centerX, centerY) {
+                // Glow luar
+                const gradient = ctx.createRadialGradient(centerX, centerY, 5, centerX, centerY, SUN_RADIUS * 2.5);
+                gradient.addColorStop(0, '#fff9c4');
+                gradient.addColorStop(0.4, '#ffb347');
+                gradient.addColorStop(0.7, '#ff8c00');
+                gradient.addColorStop(1, 'rgba(255, 140, 0, 0)');
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, SUN_RADIUS * 2.2, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+
+                // Bola Matahari
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, SUN_RADIUS, 0, Math.PI * 2);
+                ctx.fillStyle = '#ffb347';
+                ctx.shadowColor = '#ffaa00';
+                ctx.shadowBlur = 40;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // Inti terang
+                ctx.beginPath();
+                ctx.arc(centerX - 5, centerY - 5, SUN_RADIUS * 0.4, 0, Math.PI * 2);
+                ctx.fillStyle = '#fff9e6';
+                ctx.fill();
+            }
+
+            // Gambar Bumi (dengan rotasi visual sederhana)
+            function drawEarth(x, y, angle) {
+                // Bola Bumi
+                ctx.beginPath();
+                ctx.arc(x, y, EARTH_RADIUS, 0, Math.PI * 2);
+                const grad = ctx.createRadialGradient(x - 4, y - 4, 2, x, y, EARTH_RADIUS + 2);
+                grad.addColorStop(0, '#8ecae6');
+                grad.addColorStop(0.6, '#2e7bb6');
+                grad.addColorStop(1, '#0d3b5e');
+                ctx.fillStyle = grad;
+                ctx.shadowColor = '#4da6ff';
+                ctx.shadowBlur = 15;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // Benua sederhana (efek rotasi)
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(angle);
+                ctx.beginPath();
+                ctx.ellipse(0, -4, 5, 3, 0, 0, Math.PI * 2);
+                ctx.fillStyle = '#3a9e4d';
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(5, 4, 4, 2.5, 0.3, 0, Math.PI * 2);
+                ctx.fillStyle = '#3a9e4d';
+                ctx.fill();
+                ctx.beginPath();
+                ctx.ellipse(-4, 5, 3.5, 2, -0.2, 0, Math.PI * 2);
+                ctx.fillStyle = '#2e8b57';
+                ctx.fill();
+                ctx.restore();
+
+                // Efek malam (bagian gelap)
+                ctx.beginPath();
+                ctx.arc(x, y, EARTH_RADIUS, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0,0,0,0.2)';
+                ctx.fill();
+            }
+
+            // Gambar Bulan
+            function drawMoon(x, y) {
+                ctx.beginPath();
+                ctx.arc(x, y, MOON_RADIUS, 0, Math.PI * 2);
+                const grad = ctx.createRadialGradient(x - 3, y - 3, 1, x, y, MOON_RADIUS + 2);
+                grad.addColorStop(0, '#e0e0e0');
+                grad.addColorStop(1, '#808080');
+                ctx.fillStyle = grad;
+                ctx.shadowColor = '#cccccc';
+                ctx.shadowBlur = 12;
+                ctx.fill();
+                ctx.shadowBlur = 0;
+
+                // Kawah
+                ctx.beginPath();
+                ctx.arc(x - 2, y - 1, 2, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(100,100,100,0.6)';
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(x + 2, y + 2, 1.5, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(90,90,90,0.6)';
+                ctx.fill();
+            }
+
+            // Menggambar orbit (elips/lingkaran)
+            function drawOrbit(centerX, centerY, radiusX, radiusY, color, dash = true) {
+                ctx.beginPath();
+                ctx.ellipse(centerX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
+                ctx.strokeStyle = color;
+                ctx.setLineDash(dash ? [5, 8] : []);
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Render utama
+            function render() {
+                const w = canvas.width;
+                const h = canvas.height;
+                const centerX = w / 2;
+                const centerY = h / 2;
+
+                // Skala agar simulasi muat di canvas
+                const maxOrbit = Math.min(w, h) * 0.4;
+                const scale = Math.min(1, maxOrbit / (EARTH_ORBIT_RADIUS + MOON_ORBIT_RADIUS + 20));
+
+                const earthOrbitR = EARTH_ORBIT_RADIUS * scale;
+                const moonOrbitR = MOON_ORBIT_RADIUS * scale;
+
+                // Clear dengan gradien gelap
+                ctx.clearRect(0, 0, w, h);
+
+                // Background bintang
+                drawStars();
+
+                // Orbit Bumi
+                drawOrbit(centerX, centerY, earthOrbitR, earthOrbitR, COLORS.orbit, true);
+
+                // Posisi Bumi
+                const earthX = centerX + Math.cos(angleEarth) * earthOrbitR;
+                const earthY = centerY + Math.sin(angleEarth) * earthOrbitR;
+
+                // Orbit Bulan (mengelilingi Bumi) - gambar lingkaran di sekitar Bumi
+                ctx.beginPath();
+                ctx.ellipse(earthX, earthY, moonOrbitR, moonOrbitR, 0, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(200,200,220,0.3)';
+                ctx.setLineDash([4, 6]);
+                ctx.lineWidth = 1;
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Posisi Bulan relatif terhadap Bumi
+                const moonX = earthX + Math.cos(angleMoon) * moonOrbitR;
+                const moonY = earthY + Math.sin(angleMoon) * moonOrbitR;
+
+                // Gambar Matahari
+                drawSun(centerX, centerY);
+
+                // Gambar Bumi (dengan rotasi)
+                drawEarth(earthX, earthY, earthRotation);
+
+                // Gambar Bulan
+                drawMoon(moonX, moonY);
+
+                // Garis penghubung Bumi-Bulan tipis (opsional)
+                ctx.beginPath();
+                ctx.moveTo(earthX, earthY);
+                ctx.lineTo(moonX, moonY);
+                ctx.strokeStyle = 'rgba(255,255,200,0.1)';
+                ctx.lineWidth = 0.8;
+                ctx.stroke();
+            }
+
+            // Loop animasi
+            let lastTime = performance.now();
+            function animationLoop(now) {
+                const deltaTime = Math.min(100, now - lastTime) / 1000; // dalam detik, batasi max 0.1s
+                lastTime = now;
+
+                updateSimulation(deltaTime);
+                render();
+
+                requestAnimationFrame(animationLoop);
+            }
+
+            // Kontrol interaktif
+            document.getElementById('pauseBtn').addEventListener('click', function(e) {
+                isPaused = !isPaused;
+                this.innerHTML = isPaused ? '<i class="fas fa-play"></i> Lanjut' : '<i class="fas fa-pause"></i> Jeda';
+            });
+
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                angleEarth = 0;
+                angleMoon = 0;
+                earthRotation = 0;
+                isPaused = false;
+                document.getElementById('pauseBtn').innerHTML = '<i class="fas fa-pause"></i> Jeda';
+                speedFactor = 1;
+            });
+
+            document.getElementById('speedUpBtn').addEventListener('click', function() {
+                speedFactor = speedFactor >= 3 ? 0.5 : speedFactor + 0.5;
+                this.innerHTML = `<i class="fas fa-forward"></i> ${speedFactor.toFixed(1)}x`;
+            });
+
+            // Mulai animasi
+            requestAnimationFrame(animationLoop);
+
+            // Penanganan resize canvas
+            window.addEventListener('resize', function() {
+                resizeCanvas();
+                // Tidak perlu reset posisi, scale akan otomatis menyesuaikan
+            });
+        })();
+    </script>
+    <!-- Tambahan efek smooth scroll -->
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</body>
+</html>
